@@ -1,12 +1,17 @@
 ---
 title: "Ghana Health Facilities"
-author: "Reginald"
+author: "Reginald Ziedzor"
 date: "August 19, 2018"
-output: html_document
+output: rmarkdown::github_document
+
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE}
+fig.path = "README_figs/README-"
 ```
 
 ## Libraries to be used
@@ -87,12 +92,4 @@ ggplot()+
         axis.ticks = element_blank()) 
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
