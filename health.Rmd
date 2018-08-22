@@ -1,0 +1,98 @@
+---
+title: "Ghana Health Facilities"
+author: "Reginald"
+date: "August 19, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Libraries to be used
+
+```{r, message=FALSE}
+library(tidyverse)
+library(rgdal)
+
+```
+
+```{r, include = FALSE}
+
+hlth <- read.csv("C:/Users/Senyo/Downloads/HEALTH FACILITIES IN GHANA.csv")
+
+gh_shp <- readOGR(dsn = "C:/Users/Senyo/Downloads/GHA_adm", layer = "GHA_adm1")
+
+```
+
+
+##Skimming through the dataset
+```{r }
+str(hlth)
+```
+
+Checking for missing values in each column
+```{r}
+hlth %>% 
+  purrr::map_df(~sum(is.na(.)))
+```
+24 missing coordinates of the health facilities
+
+### Checking the levels of ownership
+```{r}
+levels(hlth$Ownership) 
+```
+Need to streamline some of the levels
+
+```{r}
+hlth <- hlth %>% 
+  mutate_at(.vars = vars(Ownership), .funs = forcats::fct_recode, Private = "private", Islamic = "Muslim", 
+            Government = "government", Government = "Clinic", Islamic = "Mission") %>% 
+  mutate_at(.vars = vars(Type), .funs = fct_recode, "Health Centre" = "Centre", CHPS ="CPHS", Clinic = "clinic",
+            "District Health Directorate"= "DHD", "Reproductive and Child Health" = "RCH",
+            "Municipal Health Directorate" = "Municipal  Health Directorate")
+```
+
+
+###Collapsing the health facilities into 4 categories
+```{r}
+hlth %>% 
+  mutate_at(.vars = vars(Type), .funs = funs(nType = forcats::fct_collapse), 
+            "health provider" = c("Health Centre", "CHPS",  "Clinic", "Hospital", "District Hospital", 
+                                  "Metropolitan Hospital", "Municipal Hospital", "Regional Hospital", 
+                                  "Teaching Hospital", "Maternity Home", "Reproductive and Child Health",
+                                  "Psychiatric Hospital", "Polyclinic"),
+            "directorate" = c("District Health Directorate", "Metropolitan Health Directorate", 
+                              "Municipal Health Directorate", "Regional Health Directorate"),
+            "training and research" = c("Training Institution", "Research Institution")) %>% 
+  group_by(nType) %>% 
+  summarise(n = n())
+```
+
+
+```{r, warning=FALSE}
+gh <- broom::tidy(gh_shp)
+gh$id <- as.character(gh$id)
+```
+
+
+```{r}
+ggplot()+
+  geom_polygon(data = gh, aes(x = long, y = lat, group = group), colour = "grey") +
+  geom_point(data = hlth, aes(x = Longitude, y = Latitude, colour = Ownership)) +
+  coord_fixed(ratio = 1) +
+  theme_bw() +
+  theme(axis.text = element_blank(), # change the theme options 
+        axis.title = element_blank(), # remove axis titles 
+        axis.ticks = element_blank()) 
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
