@@ -67,7 +67,7 @@ hlth <- hlth %>%
 ### Collapsing the health facilities into 4 categories
 
 ``` r
-hlth %>% 
+hlth <- hlth %>% 
   mutate_at(.vars = vars(Type), .funs = funs(nType = forcats::fct_collapse), 
             "health provider" = c("Health Centre", "CHPS",  "Clinic", "Hospital", "District Hospital", 
                                   "Metropolitan Hospital", "Municipal Hospital", "Regional Hospital", 
@@ -75,7 +75,9 @@ hlth %>%
                                   "Psychiatric Hospital", "Polyclinic"),
             "directorate" = c("District Health Directorate", "Metropolitan Health Directorate", 
                               "Municipal Health Directorate", "Regional Health Directorate"),
-            "training and research" = c("Training Institution", "Research Institution")) %>% 
+            "training and research" = c("Training Institution", "Research Institution")) 
+
+hlth%>% 
   group_by(nType) %>% 
   summarise(n = n())
 ```
@@ -98,6 +100,8 @@ gh <- broom::tidy(gh_shp)
 gh$id <- as.character(gh$id)
 ```
 
+Plotting the distribution of health facilities in Ghana
+
 ``` r
 ggplot()+
   geom_polygon(data = gh, aes(x = long, y = lat, group = group), colour = "grey") +
@@ -112,3 +116,60 @@ ggplot()+
     ## Warning: Removed 24 rows containing missing values (geom_point).
 
 ![](health_files/figure-markdown_github/unnamed-chunk-10-1.png)
+
+Finding the number of health facilities per region
+
+``` r
+hlth %>% 
+  group_by(Region) %>% 
+  summarise(n = n()) %>% 
+  arrange(desc(n))
+```
+
+    ## # A tibble: 10 x 2
+    ##    Region            n
+    ##    <fct>         <int>
+    ##  1 Ashanti         658
+    ##  2 Greater Accra   504
+    ##  3 Western         496
+    ##  4 Volta           398
+    ##  5 Eastern         393
+    ##  6 Brong Ahafo     348
+    ##  7 Central         299
+    ##  8 Northern        267
+    ##  9 Upper East      232
+    ## 10 Upper West      161
+
+Breakdown of health facilities per region
+
+``` r
+hlth %>% 
+  group_by(Region, nType) %>% 
+  summarise(n = n()) %>% 
+  spread(nType, n)
+```
+
+    ## # A tibble: 10 x 5
+    ## # Groups:   Region [10]
+    ##    Region       `health provider` directorate Others `training and resear~
+    ##    <fct>                    <int>       <int>  <int>                 <int>
+    ##  1 Ashanti                    642           4     NA                    12
+    ##  2 Brong Ahafo                326          16     NA                     6
+    ##  3 Central                    278          16     NA                     5
+    ##  4 Eastern                    386           1     NA                     6
+    ##  5 Greater Acc~               472          12      2                    18
+    ##  6 Northern                   240          19      1                     7
+    ##  7 Upper East                 189           9     28                     6
+    ##  8 Upper West                 147          10     NA                     4
+    ##  9 Volta                      378          15     NA                     5
+    ## 10 Western                    472          17     NA                     7
+
+Breakdown of health facilities by Ownership per region
+
+``` r
+hlth %>% 
+  group_by(Region, Ownership) %>% 
+  summarise(n = n()) %>% 
+  spread(key = Ownership,value = n) %>% 
+  View()
+```
