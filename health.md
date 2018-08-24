@@ -69,7 +69,7 @@ hlth <- hlth %>%
 ``` r
 hlth <- hlth %>% 
   mutate_at(.vars = vars(Type), .funs = funs(nType = forcats::fct_collapse), 
-            "health provider" = c("Health Centre", "CHPS",  "Clinic", "Hospital", "District Hospital", 
+            "health service provider" = c("Health Centre", "CHPS",  "Clinic", "Hospital", "District Hospital", 
                                   "Metropolitan Hospital", "Municipal Hospital", "Regional Hospital", 
                                   "Teaching Hospital", "Maternity Home", "Reproductive and Child Health",
                                   "Psychiatric Hospital", "Polyclinic"),
@@ -83,12 +83,12 @@ hlth%>%
 ```
 
     ## # A tibble: 4 x 2
-    ##   nType                     n
-    ##   <fct>                 <int>
-    ## 1 health provider        3530
-    ## 2 directorate             119
-    ## 3 Others                   31
-    ## 4 training and research    76
+    ##   nType                       n
+    ##   <fct>                   <int>
+    ## 1 health service provider  3530
+    ## 2 directorate               119
+    ## 3 Others                     31
+    ## 4 training and research      76
 
 ``` r
 gh <- broom::tidy(gh_shp)
@@ -148,17 +148,28 @@ hlth %>%
   as.data.frame()
 ```
 
-    ##           Region health provider directorate Others training and research
-    ## 1        Ashanti             642           4     NA                    12
-    ## 2    Brong Ahafo             326          16     NA                     6
-    ## 3        Central             278          16     NA                     5
-    ## 4        Eastern             386           1     NA                     6
-    ## 5  Greater Accra             472          12      2                    18
-    ## 6       Northern             240          19      1                     7
-    ## 7     Upper East             189           9     28                     6
-    ## 8     Upper West             147          10     NA                     4
-    ## 9          Volta             378          15     NA                     5
-    ## 10       Western             472          17     NA                     7
+    ##           Region health service provider directorate Others
+    ## 1        Ashanti                     642           4     NA
+    ## 2    Brong Ahafo                     326          16     NA
+    ## 3        Central                     278          16     NA
+    ## 4        Eastern                     386           1     NA
+    ## 5  Greater Accra                     472          12      2
+    ## 6       Northern                     240          19      1
+    ## 7     Upper East                     189           9     28
+    ## 8     Upper West                     147          10     NA
+    ## 9          Volta                     378          15     NA
+    ## 10       Western                     472          17     NA
+    ##    training and research
+    ## 1                     12
+    ## 2                      6
+    ## 3                      5
+    ## 4                      6
+    ## 5                     18
+    ## 6                      7
+    ## 7                      6
+    ## 8                      4
+    ## 9                      5
+    ## 10                     7
 
 This shows that the Ashanti Region has the highest number of health providers
 
@@ -199,7 +210,7 @@ hlth %>%
     ##  9                  1
     ## 10                 29
 
-A further breakdown of the number of health providers show that the capital, Greater Accra, has the highest number of private health providers
+A further breakdown of the number of health service providers show that the capital, Greater Accra, has the highest number of private health providers
 
 ``` r
 ggplot()+
@@ -220,7 +231,7 @@ ggplot()+
 ``` r
 ggplot() +
   geom_polygon(data = gh, aes(x = long, y = lat, group = group), colour = "grey") +
-  geom_point(data = hlth[hlth$nType == "health provider",], aes(x = Longitude, y = Latitude, colour = Type)) +
+  geom_point(data = hlth[hlth$nType == "health service provider",], aes(x = Longitude, y = Latitude, colour = Type)) +
   coord_fixed(ratio = 1) + 
   theme_bw() +
   theme(axis.text = element_blank(), # change the theme options 
@@ -235,7 +246,7 @@ ggplot() +
 ``` r
 hlth %>% 
   group_by(Type, Region) %>% 
-  filter(str_detect(nType, "health provider")) %>% 
+  filter(str_detect(nType, "health service provider")) %>% 
   summarise(n = n()) %>% 
   spread(key = Type, value = n) %>% 
   tbl_df() %>% 
