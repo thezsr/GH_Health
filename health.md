@@ -140,36 +140,124 @@ hlth %>%
     ##  9 Upper East      232
     ## 10 Upper West      161
 
-Breakdown of health facilities per region
+### Breakdown of health facilities per region
 
 ``` r
 hlth %>% 
   group_by(Region, nType) %>% 
   summarise(n = n()) %>% 
-  spread(nType, n)
+  spread(nType, n) %>% 
+  as.data.frame()
 ```
 
-    ## # A tibble: 10 x 5
-    ## # Groups:   Region [10]
-    ##    Region       `health provider` directorate Others `training and resear~
-    ##    <fct>                    <int>       <int>  <int>                 <int>
-    ##  1 Ashanti                    642           4     NA                    12
-    ##  2 Brong Ahafo                326          16     NA                     6
-    ##  3 Central                    278          16     NA                     5
-    ##  4 Eastern                    386           1     NA                     6
-    ##  5 Greater Acc~               472          12      2                    18
-    ##  6 Northern                   240          19      1                     7
-    ##  7 Upper East                 189           9     28                     6
-    ##  8 Upper West                 147          10     NA                     4
-    ##  9 Volta                      378          15     NA                     5
-    ## 10 Western                    472          17     NA                     7
+    ##           Region health provider directorate Others training and research
+    ## 1        Ashanti             642           4     NA                    12
+    ## 2    Brong Ahafo             326          16     NA                     6
+    ## 3        Central             278          16     NA                     5
+    ## 4        Eastern             386           1     NA                     6
+    ## 5  Greater Accra             472          12      2                    18
+    ## 6       Northern             240          19      1                     7
+    ## 7     Upper East             189           9     28                     6
+    ## 8     Upper West             147          10     NA                     4
+    ## 9          Volta             378          15     NA                     5
+    ## 10       Western             472          17     NA                     7
 
-Breakdown of health facilities by Ownership per region
+This shows that the Ashanti Region has the highest number of health providers
+
+### Breakdown of health facilities by Ownership per region
 
 ``` r
 hlth %>% 
   group_by(Region, Ownership) %>% 
   summarise(n = n()) %>% 
   spread(key = Ownership,value = n) %>% 
-  View()
+  as.data.frame()
 ```
+
+    ##           Region CHAG Government Islamic Maternity Home NGO Private
+    ## 1        Ashanti   71        215       1             NA  NA     350
+    ## 2    Brong Ahafo   20        246       1              2  NA      78
+    ## 3        Central   16        226      NA             NA  NA      55
+    ## 4        Eastern   25        275      NA             NA  NA      85
+    ## 5  Greater Accra   13        103      NA             NA   2     360
+    ## 6       Northern   28        224      NA             NA  NA      13
+    ## 7     Upper East   23        195      NA             NA  NA      13
+    ## 8     Upper West   12        138       2             NA  NA       9
+    ## 9          Volta   19        306      NA             NA  NA      72
+    ## 10       Western   30        289       2             NA  NA     146
+    ##    Quasi-Government
+    ## 1                21
+    ## 2                 1
+    ## 3                 2
+    ## 4                 8
+    ## 5                26
+    ## 6                 2
+    ## 7                 1
+    ## 8                NA
+    ## 9                 1
+    ## 10               29
+
+A further breakdown of the number of health providers show that the capital, Greater Accra, has the highest number of private health providers
+
+``` r
+ggplot()+
+  geom_polygon(data = gh, aes(x = long, y = lat, group = group), colour = "grey") +
+  geom_point(data = hlth, aes(x = Longitude, y = Latitude, colour = Type)) +
+  coord_fixed(ratio = 1) +
+  facet_wrap(~nType) +
+  theme_bw() +
+  theme(axis.text = element_blank(), # change the theme options 
+        axis.title = element_blank(), # remove axis titles 
+        axis.ticks = element_blank())
+```
+
+    ## Warning: Removed 24 rows containing missing values (geom_point).
+
+![](health_files/figure-markdown_github/unnamed-chunk-14-1.png)
+
+Breaking down the health service providers in Ghana
+
+``` r
+ggplot() +
+  geom_polygon(data = gh, aes(x = long, y = lat, group = group), colour = "grey") +
+  geom_point(data = hlth[hlth$nType == "health provider",], aes(x = Longitude, y = Latitude, colour = Type)) +
+  coord_fixed(ratio = 1) 
+```
+
+    ## Warning: Removed 23 rows containing missing values (geom_point).
+
+![](health_files/figure-markdown_github/unnamed-chunk-15-1.png)
+
+``` r
+ggplot() +
+  geom_polygon(data = gh, aes(x = long, y = lat, group = group), colour = "grey") +
+  geom_point(data = hh, aes(x = Longitude, y = Latitude, colour = Type)) +
+  facet_wrap(~Region) +
+  coord_fixed(ratio = 1)
+```
+
+    ## Warning: Removed 23 rows containing missing values (geom_point).
+
+![](health_files/figure-markdown_github/unnamed-chunk-17-1.png)
+
+``` r
+hlth %>% 
+  filter(str_detect(Region, "Western"), Latitude > 6) %>% 
+  arrange(desc(Latitude)) %>% 
+  head()
+```
+
+    ##    Region          District                 FacilityName   Type    Town
+    ## 1 Western Shama Ahanta East  Scho ol for the Deaf Clinic   CHPS Somboro
+    ## 2 Western Shama Ahanta East             Infirmary Clinic   CHPS    Ping
+    ## 3 Western               Bia                Presby Clinic Clinic        
+    ## 4 Western               Bia    St. Luke Methodist Clinic Clinic        
+    ## 5 Western               Bia St. John of God Clinic Annex Clinic        
+    ## 6 Western               Bia           Kwasi Nkrumah CHPS   CHPS        
+    ##          Ownership  Latitude Longitude           nType
+    ## 1       Government 10.481920 -2.650360 health provider
+    ## 2       Government 10.374670 -2.302880 health provider
+    ## 3 Quasi-Government  6.966667 -1.266667 health provider
+    ## 4 Quasi-Government  6.966667 -1.266667 health provider
+    ## 5             CHAG  6.966667 -1.266667 health provider
+    ## 6       Government  6.966667 -1.266667 health provider
