@@ -3,6 +3,8 @@ Ghana Health Facilities
 Reginald Ziedzor
 August 19, 2018
 
+Dataset for the Ghana health facilities was retrieved from <http://data.gov.gh/dataset/health-facilities>
+
 Libraries to be used
 --------------------
 
